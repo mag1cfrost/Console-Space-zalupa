@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <windows.h>
 #include <cstdlib>
 #include <ctime>
@@ -12,7 +12,6 @@ using namespace std;
 
 const double PI = 3.14159265358979323846;
 
-// Глобальные переменные для масштабирования
 double scale = 1.0;
 int offsetX = 0, offsetY = 0;
 const double MIN_SCALE = 0.3;
@@ -23,7 +22,7 @@ struct Star {
     int y;
     int color;
     char symbol;
-    int brightness; // Добавим яркость для более сложной визуализации
+    int brightness;
 };
 
 struct TrailPoint {
@@ -44,7 +43,7 @@ struct Planet {
     int size;
     vector<TrailPoint> trail;
     int maxTrailLength;
-    string name; // Добавим имена для лучшей идентификации
+    string name;
 };
 
 struct Comet {
@@ -71,7 +70,6 @@ struct Starship {
     int warpCooldown;
 };
 
-// Функция для преобразования мировых координат в экранные с учетом масштаба и смещения
 void worldToScreen(int worldX, int worldY, int centerX, int centerY, int& screenX, int& screenY) {
     screenX = centerX + (int)((worldX - centerX) * scale) + offsetX;
     screenY = centerY + (int)((worldY - centerY) * scale) + offsetY;
@@ -109,30 +107,29 @@ void setCursorPosition(int x, int y) {
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-// Функция для обработки ввода (упрощенная версия масштабирования)
 void handleInput() {
     if (_kbhit()) {
         char ch = _getch();
         switch (ch) {
-        case '+': // Приближение
+        case '+':
             scale = min(MAX_SCALE, scale * 1.1);
             break;
-        case '-': // Отдаление
+        case '-':
             scale = max(MIN_SCALE, scale / 1.1);
             break;
-        case 'w': case 'W': // Смещение вверх
+        case 'w': case 'W':
             offsetY -= 5;
             break;
-        case 's': case 'S': // Смещение вниз
+        case 's': case 'S':
             offsetY += 5;
             break;
-        case 'a': case 'A': // Смещение влево
+        case 'a': case 'A':
             offsetX -= 5;
             break;
-        case 'd': case 'D': // Смещение вправо
+        case 'd': case 'D':
             offsetX += 5;
             break;
-        case 'r': case 'R': // Сброс масштаба и смещения
+        case 'r': case 'R':
             scale = 1.0;
             offsetX = 0;
             offsetY = 0;
@@ -147,10 +144,9 @@ vector<Star> createStarfield(int width, int height) {
     int starColors[] = { 7, 8, 15, 14, 11, 9, 10, 12, 13 };
     int colorCount = 9;
 
-    // Увеличим плотность звезд для более богатого вида
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            if (rand() % 100 < 6) { // Увеличили плотность
+            if (rand() % 100 < 6) {
                 Star star;
                 star.x = x;
                 star.y = y;
@@ -168,7 +164,6 @@ vector<Star> createStarfield(int width, int height) {
 vector<Planet> createRandomPlanets(int centerX, int centerY, int width, int height) {
     vector<Planet> planets;
 
-    // Создадим более разнообразную систему планет
     string planetNames[] = { "Меркурий", "Венера", "Земля", "Марс", "Юпитер", "Сатурн", "Уран", "Нептун", "Кеплер", "Церера" };
 
     int planetCount = 5 + rand() % 4;
@@ -188,11 +183,9 @@ vector<Planet> createRandomPlanets(int centerX, int centerY, int width, int heig
         double baseSpeed = 0.003 + (rand() % 10) / 1500.0;
         planet.speed = baseSpeed * (30.0 / max(1, planet.orbitRadius));
 
-        // Более разнообразные цвета планет
         int colors[] = { 1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14, 15 };
         planet.color = colors[rand() % 13];
 
-        // Разные символы для разных типов планет
         char symbols[] = { 'O', 'o', '0', 'Q', '@', '°', '¤', '●', '♦' };
         planet.symbol = symbols[rand() % 9];
 
@@ -226,7 +219,6 @@ vector<Comet> createComets(int width, int height) {
         comet.y = rand() % max(1, height);
         comet.speedY = (rand() % 10 - 5) / 20.0;
 
-        // Разные цвета комет
         int colors[] = { 11, 14, 15, 10, 13 };
         comet.color = colors[rand() % 5];
 
@@ -263,7 +255,6 @@ vector<Starship> createStarships(int width, int height) {
         int colors[] = { 9, 10, 11, 12, 13, 14, 15 };
         ship.color = colors[rand() % 7];
 
-        // Более разнообразные символы кораблей
         char symbols[] = { '>', '<', '^', 'A', 'V', 'Φ', 'Ψ', '╦', '╣', '╠', '╩' };
         ship.symbol = symbols[rand() % 11];
         ship.direction = (ship.speedX > 0) ? 1 : 0;
@@ -436,7 +427,6 @@ void drawBlackHole(int centerX, int centerY, int width, int height, int frame) {
     default: centerChar = ' '; break;
     }
 
-    // Улучшенная визуализация черной дыры
     setCursorPosition(centerX - 2, centerY - 1);
     cout << "█████";
     setCursorPosition(centerX - 2, centerY);
@@ -444,7 +434,6 @@ void drawBlackHole(int centerX, int centerY, int width, int height, int frame) {
     setCursorPosition(centerX - 2, centerY + 1);
     cout << "█████";
 
-    // Аккреционный диск с улучшенной графикой
     setColor(8);
     double rotation = (frame % 360) * PI / 180.0;
 
@@ -475,7 +464,6 @@ void drawBlackHole(int centerX, int centerY, int width, int height, int frame) {
         }
     }
 
-    // Гравитационные волны
     setColor(7);
     for (int i = 0; i < 6; i++) {
         double angle = rotation * 2 + (i * PI / 3);
@@ -535,7 +523,6 @@ void drawPlanets(const vector<Planet>& planets, int width, int height) {
             setColor(planet.color);
             cout << planet.symbol;
 
-            // Для больших планет добавляем детали
             if (planet.size >= 2) {
                 setCursorPosition(planet.x - 1, planet.y);
                 cout << "-";
@@ -559,7 +546,7 @@ void drawComets(const vector<Comet>& comets, int width, int height) {
         if (comet.x >= 0 && comet.x < width && comet.y >= 0 && comet.y < height) {
             setCursorPosition(comet.x, comet.y);
             setColor(comet.color);
-            cout << '☄'; // Используем символ кометы
+            cout << '☄';
         }
     }
 }
@@ -581,7 +568,6 @@ void drawStars(const vector<Star>& stars, int width, int height, int frame) {
         if (star.x >= 0 && star.x < width && star.y >= 0 && star.y < height) {
             setCursorPosition(star.x, star.y);
 
-            // Анимация мерцания звезд
             int flicker = (frame + star.x + star.y) % 100;
             int currentBrightness;
 
@@ -637,7 +623,6 @@ int main() {
 
     while (true) {
         try {
-            // Обрабатываем ввод
             handleInput();
 
             int consoleWidth, consoleHeight;
@@ -659,22 +644,18 @@ int main() {
                 lastHeight = consoleHeight;
             }
 
-            // Обновляем позиции
             updatePlanets(planets, centerX, centerY, consoleWidth, consoleHeight);
             updateComets(comets, consoleWidth, consoleHeight);
             updateStarships(starships, consoleWidth, consoleHeight);
 
-            // Очищаем экран
             system("cls");
 
-            // Рисуем объекты
             drawStars(stars, consoleWidth, consoleHeight, frame);
             drawBlackHole(centerX, centerY, consoleWidth, consoleHeight, frame);
             drawPlanets(planets, consoleWidth, consoleHeight);
             drawComets(comets, consoleWidth, consoleHeight);
             drawStarships(starships, consoleWidth, consoleHeight);
 
-            // Информация о масштабе и управлении
             setCursorPosition(0, consoleHeight - 1);
             setColor(7);
             cout << "Масштаб: " << scale << "x";
@@ -683,8 +664,7 @@ int main() {
             cout << "Кадр: " << frame;
 
             frame++;
-            Sleep(50); // Увеличили FPS для более плавной анимации
-
+            Sleep(50);
         }
         catch (const exception& e) {
             system("cls");
